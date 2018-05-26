@@ -1,0 +1,20 @@
+{
+  "name": "procedural-tests",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "parcel index.html",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Julio Garcia",
+  "license": "ISC",
+  "dependencies": {
+    "@types/three": "^0.91.10",
+    "three": "^0.92.0",
+    "three-orbitcontrols-ts": "^0.1.2"
+  },
+  "devDependencies": {
+    "typescript": "^2.8.3"
+  }
+}
