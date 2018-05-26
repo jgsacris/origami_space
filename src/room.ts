@@ -18,6 +18,8 @@ export default class Room {
     0x00ff00
   ];
 
+  private roomCorners: Array<THREE.Vector2>;
+
   constructor(noOfWalls: number = 6) {
     this.noOfWalls = noOfWalls;
     this.calculateRadius();
@@ -33,7 +35,7 @@ export default class Room {
   calculateRadius() {
     // debugger;
     let perimeter = this.noOfWalls * this.wallLength * Room.difConstant;
-    this.radius = perimeter / (2 * Math.PI);
+    this.radius = Math.round(perimeter / (2 * Math.PI));
     console.log("radius", this.radius);
   }
   /**
@@ -77,59 +79,53 @@ export default class Room {
   positionWalls() {
     console.log("positioning walls");
     this.roomGO = new THREE.Object3D();
-    let material = new THREE.MeshLambertMaterial({
-      color: this.colors[0],
-      side: THREE.DoubleSide
-    });
-    let geometry = new THREE.PlaneGeometry(this.wallWidths[0], this.wallHeight);
-    //change rotation pivot
 
-    geometry.applyMatrix(
-      new THREE.Matrix4().makeTranslation(
-        this.wallWidths[0] / 2,
-        this.wallHeight / 2,
-        0
-      )
-    );
-
-    let wall = new THREE.Mesh(geometry, material);
-    //let cAngle = this.angles[0] / 2;
     let cAngle = 0;
-    this.logAngle(cAngle);
-    wall.rotateY(cAngle);
     let cX = 0;
     let cZ = this.radius;
-    wall.position.set(cX, 0, cZ);
-
-    this.roomGO.add(wall);
-    cX += Math.cos(cAngle) * this.wallWidths[0];
-    cZ += Math.sin(cAngle) * this.wallWidths[0];
-    console.log("x:z = ", cX, cZ);
-    for (let i = 1; i < this.noOfWalls; i++) {
-      material = new THREE.MeshLambertMaterial({
-        color: this.colors[i],
-        side: THREE.DoubleSide
-      });
-      geometry = new THREE.PlaneGeometry(this.wallWidths[i], this.wallHeight);
-
-      geometry.applyMatrix(
-        new THREE.Matrix4().makeTranslation(
-          this.wallWidths[i] / 2,
-          this.wallHeight / 2,
-          0
-        )
-      );
-
-      wall = new THREE.Mesh(geometry, material);
+    this.roomCorners = new Array<THREE.Vector2>();
+    this.roomCorners.push(new THREE.Vector2(cX, cZ));
+    let wall: THREE.Mesh;
+    let material: THREE.Material;
+    let geometry: THREE.Geometry;
+    let i = 0;
+    for (i; i < this.noOfWalls - 1; i++) {
+      wall = this.createWall(this.wallWidths[i], this.colors[i]);
       cAngle += this.angles[i];
-      console.log("color: ", this.colors[i].toString(16), cX, cZ);
-      this.logAngle(cAngle);
+      //console.log("color: ", this.colors[i].toString(16), cX, cZ);
+      //this.logAngle(cAngle);
       wall.rotateY(cAngle);
       wall.position.set(cX, 0, cZ);
+      this.roomGO.add(wall);
       cX += Math.cos(-cAngle) * this.wallWidths[i];
       cZ += Math.sin(-cAngle) * this.wallWidths[i];
-      this.roomGO.add(wall);
+      this.roomCorners.push(new THREE.Vector2(cX, cZ));
     }
+
+    this.wallWidths[i] = Math.sqrt(
+      Math.pow(cX, 2) + Math.pow(cZ - this.radius, 2)
+    );
+
+    wall = this.createWall(this.wallWidths[i], this.colors[i]);
+    cAngle = Math.atan2(this.radius - cZ, -cX);
+    wall.rotateY(-cAngle);
+    wall.position.set(cX, 0, cZ);
+    this.roomGO.add(wall);
+    console.log("corners", this.roomCorners);
+  }
+
+  createWall(width: number, color: number): THREE.Mesh {
+    let material = new THREE.MeshLambertMaterial({
+      color: color,
+      side: THREE.DoubleSide
+    });
+    let geometry = new THREE.PlaneGeometry(width, this.wallHeight);
+
+    geometry.applyMatrix(
+      new THREE.Matrix4().makeTranslation(width / 2, this.wallHeight / 2, 0)
+    );
+
+    return new THREE.Mesh(geometry, material);
   }
 
   logAngle(rad: number) {
