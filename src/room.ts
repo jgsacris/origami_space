@@ -1,4 +1,6 @@
 import * as THREE from "three";
+import Roof from "./roof";
+import { Vector3 } from "three";
 
 export default class Room {
   private wallLength: number = 6;
@@ -111,6 +113,9 @@ export default class Room {
     wall.rotateY(-cAngle);
     wall.position.set(cX, 0, cZ);
     this.roomGO.add(wall);
+    var roof = this.createRoof();
+    roof.position.add(new Vector3(0, this.wallHeight, 0));
+    this.roomGO.add(roof);
     console.log("corners", this.roomCorners);
   }
 
@@ -126,6 +131,10 @@ export default class Room {
     );
 
     return new THREE.Mesh(geometry, material);
+  }
+
+  createRoof() {
+    return new Roof(this.roomCorners).Instance;
   }
 
   logAngle(rad: number) {
