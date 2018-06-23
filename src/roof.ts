@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import "three/examples/js/modifiers/SubdivisionModifier.js";
+//import "three/examples/js/modifiers/SubdivisionModifier.js";
 import SceneUtils2 from "./SceneUtils2";
 
 export default class Roof {
@@ -39,8 +39,8 @@ export default class Roof {
     let tempGeo = new THREE.ShapeBufferGeometry(temp);
 
     //geometry.merge(tempGeo, 0);
-    let modifier = new THREE_EXT.SubdivisionModifier(3);
-    modifier.modify(geometry);
+    // let modifier = new THREE_EXT.SubdivisionModifier(3);
+    // modifier.modify(geometry);
     this.roof = SceneUtils2.createMultiMaterialObject(geometry, materials);
     this.roof.rotateX(Math.PI / 2);
   }
